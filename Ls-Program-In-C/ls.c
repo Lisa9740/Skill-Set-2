@@ -1,17 +1,19 @@
+
 //ls.c - This Program displays the names of all files in the current directory
 
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
 
-
+DIR* directory;
 int *optArg(char **opt, char **path);
+int *checkOpt(char **opt, char **path);
 int showDirectory (DIR *directory);
-void showAllWithHiddenFiles (DIR *directory);
+void showAllIncludeHiddenFiles (DIR *directory);
+
 
 int main(int argc, char* argv[])
 {
-    DIR *directory;
 
      switch (argc) {
 	case 1:
@@ -21,7 +23,7 @@ int main(int argc, char* argv[])
         showDirectory(opendir(argv[1]));
 	break;
 	case 3:
-	*optArg(&argv[1], &argv[2]);
+	*checkOpt(&argv[1], &argv[2]);
 	break;
 	default:
 	printf("Too much argument used. ls [option] [path]");
@@ -37,7 +39,7 @@ int showDirectory(DIR* directory){
    struct dirent *entry;
 
    if (directory == NULL) {
-	printf("Could not open current directory");
+	printf("Could not open current directory\n");
    }
 
    while ((entry = readdir(directory)) != NULL)
@@ -51,19 +53,29 @@ int showDirectory(DIR* directory){
 
 }
 
-int *optArg(char** opt, char** path)
-{
 
-  DIR *directory = opendir(*path);
-  struct dirent *entry;
-
-  if (strcmp(*opt,"-a") == 0) {
-	showAllWithHiddenFiles(directory);
+int *checkOpt(char** opt, char** path) {
+  if ((*opt[0] == '-')&& (strlen(*opt) >= 2))  {
+	optArg(opt, path);
+  }else {
+	printf("Not a valid option.\n");
   }
 
 }
 
-void showAllWithHiddenFiles(DIR *directory)
+int *optArg(char** opt, char** path)
+{
+  directory = opendir(*path);
+
+  if (strcmp(*opt,"-a") == 0) {
+	showAllIncludeHiddenFiles(directory);
+  }else{
+	printf("Not a recognized option.\n");
+  }
+
+}
+
+void showAllIncludeHiddenFiles(DIR *directory)
 {
   struct dirent *entry;
 
